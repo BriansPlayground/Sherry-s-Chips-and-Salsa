@@ -1212,10 +1212,35 @@
       'Auburn Hills': [42.6875, -83.2342]
     };
 
-    // Initialize map
+    // Initialize map with enhanced features
     function initializeMap() {
       map = L.map('map').setView([43.0000, -83.2000], 10); // Central delivery area
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      
+      // Add multiple map layers
+      const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        name: 'Street Map'
+      });
+      
+      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri',
+        name: 'Satellite'
+      });
+      
+      const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenTopoMap',
+        name: 'Terrain'
+      });
+      
+      // Add layer control
+      const baseMaps = {
+        "Street Map": streetLayer,
+        "Satellite": satelliteLayer,
+        "Terrain": terrainLayer
+      };
+      
+      L.control.layers(baseMaps).addTo(map);
+      streetLayer.addTo(map); // Default layer
       
       // Make sure map is properly initialized
       setTimeout(() => {
@@ -1236,6 +1261,15 @@
         }
       });
       
+      // Add delivery area circle
+      const deliveryArea = L.circle([43.0000, -83.2000], {
+        color: '#DC143C',
+        fillColor: '#DC143C',
+        fillOpacity: 0.1,
+        radius: 25000, // 25km radius
+        weight: 2
+      }).addTo(map);
+      
       // Add new markers for each city
       cities.forEach(city => {
         const coords = cityCoordinates[city] || [42.3314, -83.0458]; // Default to Detroit if coordinates not found
@@ -1243,19 +1277,79 @@
         // Create custom icon for selected vs unselected cities
         const isSelected = selectedCity === city;
         const iconColor = isSelected ? '#DC143C' : '#002868';
-        const iconSize = isSelected ? [25, 35] : [20, 30];
+        const iconSize = isSelected ? [30, 40] : [25, 35];
+        
+        // Create city info for popup
+        const cityInfo = getCityInfo(city);
         
         const customIcon = L.divIcon({
-          html: `<div style="background-color: ${iconColor}; width: ${iconSize[0]}px; height: ${iconSize[1]}px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+          html: `
+            <div style="
+              background-color: ${iconColor}; 
+              width: ${iconSize[0]}px; 
+              height: ${iconSize[1]}px; 
+              border-radius: 50% 50% 50% 0; 
+              transform: rotate(-45deg); 
+              border: 3px solid white; 
+              box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+              position: relative;
+            ">
+              <div style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(45deg);
+                color: white;
+                font-weight: bold;
+                font-size: 12px;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+              ">${city.charAt(0)}</div>
+            </div>
+          `,
           iconSize: iconSize,
           iconAnchor: [iconSize[0]/2, iconSize[1]],
           className: 'custom-marker'
         });
         
         const marker = L.marker(coords, { icon: customIcon }).addTo(map)
-          .bindPopup(`<strong>${city}</strong><br>Click to select for delivery`)
+          .bindPopup(`
+            <div style="min-width: 200px;">
+              <h3 style="margin: 0 0 10px 0; color: #DC143C;">${city}</h3>
+              <p style="margin: 5px 0;"><strong>Population:</strong> ${cityInfo.population}</p>
+              <p style="margin: 5px 0;"><strong>County:</strong> ${cityInfo.county}</p>
+              <p style="margin: 5px 0;"><strong>Delivery:</strong> ${cityInfo.deliveryDays}</p>
+              <button onclick="selectCityFromMap('${city}')" style="
+                background: #DC143C; 
+                color: white; 
+                border: none; 
+                padding: 8px 16px; 
+                border-radius: 4px; 
+                cursor: pointer; 
+                margin-top: 10px;
+                width: 100%;
+              ">Select for Delivery</button>
+            </div>
+          `)
           .on('click', () => selectCityFromMap(city));
       });
+    }
+    
+    // Get city information for popups
+    function getCityInfo(city) {
+      const cityData = {
+        'Metamora': { population: '2,500', county: 'Lapeer', deliveryDays: 'Tuesdays' },
+        'Davison': { population: '5,100', county: 'Genesee', deliveryDays: 'Wednesdays' },
+        'Lapeer': { population: '8,800', county: 'Lapeer', deliveryDays: 'Thursdays' },
+        'Imlay City': { population: '3,600', county: 'Lapeer', deliveryDays: 'Tuesdays' },
+        'Capac': { population: '1,900', county: 'St. Clair', deliveryDays: 'Wednesdays' },
+        'Armada': { population: '1,700', county: 'Macomb', deliveryDays: 'Thursdays' },
+        'Waterford': { population: '71,000', county: 'Oakland', deliveryDays: 'Fridays' },
+        'Clarkston': { population: '882', county: 'Oakland', deliveryDays: 'Fridays' },
+        'Oxford': { population: '3,400', county: 'Oakland', deliveryDays: 'Fridays' },
+        'Lake Orion': { population: '3,000', county: 'Oakland', deliveryDays: 'Fridays' },
+        'Auburn Hills': { population: '24,000', county: 'Oakland', deliveryDays: 'Fridays' }
+      };
+      return cityData[city] || { population: 'N/A', county: 'N/A', deliveryDays: 'TBD' };
     }
 
     // Calendar functions
@@ -1437,8 +1531,90 @@
           })
         }).addTo(map);
         
+        // Add event markers for this city
+        addEventMarkers(city);
+        
         // Refresh markers to show updated selection
         updateMapMarkers();
+      }
+    }
+    
+    // Add event markers for a specific city
+    function addEventMarkers(city) {
+      // Clear existing event markers
+      if (window.eventMarkers) {
+        window.eventMarkers.forEach(marker => map.removeLayer(marker));
+        window.eventMarkers = [];
+      }
+      
+      // Find events for this city
+      const cityEvents = events.filter(event => event.city === city);
+      
+      cityEvents.forEach(event => {
+        const coords = cityCoordinates[city];
+        if (coords) {
+          // Create event marker
+          const eventIcon = L.divIcon({
+            html: `
+              <div style="
+                background-color: #28a745; 
+                width: 20px; 
+                height: 20px; 
+                border-radius: 50%; 
+                border: 3px solid white; 
+                box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                font-size: 12px;
+              ">📅</div>
+            `,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+            className: 'event-marker'
+          });
+          
+          const eventMarker = L.marker([coords[0] + 0.01, coords[1] + 0.01], { icon: eventIcon })
+            .bindPopup(`
+              <div style="min-width: 180px;">
+                <h4 style="margin: 0 0 8px 0; color: #28a745;">${event.title}</h4>
+                <p style="margin: 3px 0;"><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+                <p style="margin: 3px 0;"><strong>City:</strong> ${event.city}</p>
+                <button onclick="selectEventFromMap('${event.id}')" style="
+                  background: #28a745; 
+                  color: white; 
+                  border: none; 
+                  padding: 6px 12px; 
+                  border-radius: 4px; 
+                  cursor: pointer; 
+                  margin-top: 8px;
+                  width: 100%;
+                ">Select This Event</button>
+              </div>
+            `)
+            .addTo(map);
+          
+          if (!window.eventMarkers) window.eventMarkers = [];
+          window.eventMarkers.push(eventMarker);
+        }
+      });
+    }
+    
+    // Select event from map
+    function selectEventFromMap(eventId) {
+      const event = events.find(e => e.id == eventId);
+      if (event) {
+        selectedEvent = event;
+        selectedCity = event.city;
+        selectedDate = event.date;
+        document.getElementById('city-select').value = selectedCity;
+        document.getElementById('events-select').value = selectedEvent.id;
+        updateMapSelection(selectedCity);
+        updateCalendarSelection();
+        updateDeliverySummary();
+        updateNextButton2();
       }
     }
 
