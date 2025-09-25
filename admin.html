@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sherry's Eats - Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f5f1e8;
+      color: #002868;
+      line-height: 1.5;
+    }
+
+    .header {
+      background: #002868;
+      color: #FFFFFF;
+      padding: 1rem 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: 1px solid rgba(0, 40, 104, 0.1);
+    }
+
+    .card h2 {
+      color: #DC143C;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .stat {
+      text-align: center;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #DC143C;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #002868;
+    }
+
+    .btn {
+      background: #DC143C;
+      color: #FFFFFF;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #b91c47;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .status-pending {
+      color: #ffc107;
+      font-weight: 600;
+    }
+
+    .status-completed {
+      color: #28a745;
+      font-weight: 600;
+    }
+
+    .status-cancelled {
+      color: #dc3545;
+      font-weight: 600;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 2rem;
+    }
+
+    .tab {
+      padding: 1rem 2rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      border-bottom-color: #DC143C;
+      color: #DC143C;
+      font-weight: 600;
+    }
+
+    .tab:hover {
+      background: #f8f9fa;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #DC143C;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Sherry's Eats Admin Dashboard</h1>
+  </div>
+
+  <div class="container">
+    <!-- Stats Overview -->
+    <div class="dashboard-grid">
+      <div class="card">
+        <h2><i class="fas fa-shopping-cart"></i> Today's Orders</h2>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-number" id="pending-orders">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number" id="total-revenue">$0</div>
+            <div class="stat-label">Revenue</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="fas fa-boxes"></i> Production Needed</h2>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-number" id="items-to-make">0</div>
+            <div class="stat-label">Items</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number" id="low-stock">0</div>
+            <div class="stat-label">Low Stock</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="fas fa-users"></i> Customers</h2>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-number" id="total-customers">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number" id="new-customers">0</div>
+            <div class="stat-label">This Week</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('orders')">Orders</div>
+      <div class="tab" onclick="showTab('production')">Production List</div>
+      <div class="tab" onclick="showTab('inventory')">Inventory</div>
+      <div class="tab" onclick="showTab('customers')">Customers</div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="orders" class="tab-content active">
+      <div class="card">
+        <h2>Recent Orders</h2>
+        <div class="table-container">
+          <table id="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Delivery Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody">
+              <!-- Orders will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Production List Tab -->
+    <div id="production" class="tab-content">
+      <div class="card">
+        <h2>What Needs to be Made</h2>
+        <div class="table-container">
+          <table id="production-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Total Needed</th>
+                <th>Current Stock</th>
+                <th>Need to Make</th>
+              </tr>
+            </thead>
+            <tbody id="production-tbody">
+              <!-- Production list will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory Tab -->
+    <div id="inventory" class="tab-content">
+      <div class="card">
+        <h2>Inventory Management</h2>
+        <div class="table-container">
+          <table id="inventory-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Current Stock</th>
+                <th>Min Stock</th>
+                <th>Unit</th>
+                <th>Last Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-tbody">
+              <!-- Inventory will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers Tab -->
+    <div id="customers" class="tab-content">
+      <div class="card">
+        <h2>Customer Database</h2>
+        <div class="table-container">
+          <table id="customers-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Email Opt-in</th>
+                <th>SMS Opt-in</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="customers-tbody">
+              <!-- Customers will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab functionality
+    function showTab(tabName) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Remove active class from all tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show selected tab content
+      document.getElementById(tabName).classList.add('active');
+      
+      // Add active class to clicked tab
+      event.target.classList.add('active');
+      
+      // Load data for the selected tab
+      loadTabData(tabName);
+    }
+
+    // Load data based on selected tab
+    function loadTabData(tabName) {
+      switch(tabName) {
+        case 'orders':
+          loadOrders();
+          break;
+        case 'production':
+          loadProductionList();
+          break;
+        case 'inventory':
+          loadInventory();
+          break;
+        case 'customers':
+          loadCustomers();
+          break;
+      }
+    }
+
+    // Load orders
+    async function loadOrders() {
+      try {
+        const response = await fetch('/api/orders');
+        const orders = await response.json();
+        
+        const tbody = document.getElementById('orders-tbody');
+        tbody.innerHTML = '';
+        
+        orders.forEach(order => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>#${order.id}</td>
+            <td>${order.customer_name}<br><small>${order.customer_phone}</small></td>
+            <td>${order.items || 'No items'}</td>
+            <td>$${order.total_amount}</td>
+            <td>${order.delivery_date}</td>
+            <td><span class="status-${order.status}">${order.status}</span></td>
+            <td>
+              <button class="btn btn-secondary" onclick="updateOrderStatus(${order.id}, 'completed')">Complete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error loading orders:', error);
+      }
+    }
+
+    // Load production list
+    async function loadProductionList() {
+      try {
+        const response = await fetch('/api/production-list');
+        const production = await response.json();
+        
+        const tbody = document.getElementById('production-tbody');
+        tbody.innerHTML = '';
+        
+        production.forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item.product_name}</td>
+            <td>${item.total_needed}</td>
+            <td>${item.current_stock || 0}</td>
+            <td><strong>${item.need_to_make}</strong></td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error loading production list:', error);
+      }
+    }
+
+    // Load inventory
+    async function loadInventory() {
+      try {
+        const response = await fetch('/api/inventory');
+        const inventory = await response.json();
+        
+        const tbody = document.getElementById('inventory-tbody');
+        tbody.innerHTML = '';
+        
+        inventory.forEach(item => {
+          const isLowStock = item.current_stock <= item.min_stock;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item.item_name}</td>
+            <td style="color: ${isLowStock ? '#dc3545' : '#28a745'}">${item.current_stock}</td>
+            <td>${item.min_stock}</td>
+            <td>${item.unit}</td>
+            <td>${new Date(item.last_updated).toLocaleDateString()}</td>
+            <td>
+              <button class="btn" onclick="updateInventory('${item.item_name}')">Update</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error loading inventory:', error);
+      }
+    }
+
+    // Load customers
+    async function loadCustomers() {
+      try {
+        const response = await fetch('/api/customers');
+        const customers = await response.json();
+        
+        const tbody = document.getElementById('customers-tbody');
+        tbody.innerHTML = '';
+        
+        customers.forEach(customer => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${customer.name}</td>
+            <td>${customer.phone}</td>
+            <td>${customer.email}</td>
+            <td>${customer.email_optin ? '✓' : '✗'}</td>
+            <td>${customer.sms_optin ? '✓' : '✗'}</td>
+            <td>${new Date(customer.created_date).toLocaleDateString()}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error loading customers:', error);
+      }
+    }
+
+    // Update order status
+    async function updateOrderStatus(orderId, status) {
+      // This would need to be implemented in the backend
+      alert('Order status update functionality coming soon!');
+    }
+
+    // Update inventory
+    function updateInventory(itemName) {
+      const newStock = prompt(`Enter new stock level for ${itemName}:`);
+      if (newStock && !isNaN(newStock)) {
+        fetch('/api/inventory/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            item_name: itemName,
+            new_stock: parseInt(newStock)
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            loadInventory();
+            alert('Inventory updated successfully!');
+          } else {
+            alert('Error updating inventory');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error updating inventory');
+        });
+      }
+    }
+
+    // Load initial data
+    document.addEventListener('DOMContentLoaded', function() {
+      loadOrders();
+      // Load other stats as needed
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,254 @@
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f4e6d5;
+  color: #2c2c2c;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container */
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
+  background: transparent;
+  position: relative;
+}
+
+/* Brush Stroke Decorations */
+.brush-stroke {
+  height: 12px;
+  background: #c4412f;
+  margin: 2rem 0;
+  border-radius: 6px;
+  position: relative;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.brush-stroke::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 15% 30%, transparent 0, transparent 3px, rgba(255,255,255,0.4) 3px, rgba(255,255,255,0.4) 6px, transparent 6px),
+    radial-gradient(circle at 85% 70%, transparent 0, transparent 2px, rgba(255,255,255,0.3) 2px, rgba(255,255,255,0.3) 5px, transparent 5px),
+    radial-gradient(circle at 45% 80%, transparent 0, transparent 4px, rgba(255,255,255,0.5) 4px, rgba(255,255,255,0.5) 8px, transparent 8px),
+    radial-gradient(circle at 75% 20%, transparent 0, transparent 1px, rgba(255,255,255,0.2) 1px, rgba(255,255,255,0.2) 3px, transparent 3px);
+  border-radius: 6px;
+}
+
+/* Logo Section */
+.logo-section {
+  margin: 2rem 0 1.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.logo-image {
+  max-width: 200px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+
+/* Welcome Section */
+.welcome-section {
+  margin: 2rem 0 3rem 0;
+}
+
+.welcome-title {
+  font-family: 'Pacifico', cursive;
+  font-size: 3.8rem;
+  font-weight: 700;
+  color: #2c2c2c;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  letter-spacing: 0.5px;
+}
+
+.welcome-subtitle {
+  font-size: 1.1rem;
+  color: #2c2c2c;
+  opacity: 0.85;
+  max-width: 400px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+  font-style: normal;
+}
+
+/* Buttons Section */
+.buttons-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin: 2.5rem 0 3rem 0;
+}
+
+.menu-button {
+  display: block;
+  background: #c4412f;
+  color: #fff;
+  text-decoration: none;
+  padding: 1.3rem 2.5rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 8px rgba(196, 65, 47, 0.3);
+}
+
+.menu-button:hover {
+  background: #b03a2a;
+  box-shadow: 0 6px 12px rgba(196, 65, 47, 0.4);
+  transform: translateY(-2px);
+}
+
+.button-text {
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Footer Section */
+.footer-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(44, 44, 44, 0.2);
+}
+
+.michigan-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2rem;
+}
+
+.chili-icon {
+  font-size: 1.3rem;
+  transform: rotate(45deg);
+}
+
+.michigan-text {
+  font-weight: 600;
+  color: #2c2c2c;
+  font-size: 1.1rem;
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+}
+
+.contact-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 2rem;
+}
+
+.contact-link {
+  color: #2c2c2c;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  font-style: normal;
+}
+
+.contact-link:hover {
+  color: #c4412f;
+}
+
+.separator {
+  color: #2c2c2c;
+  opacity: 0.6;
+  font-weight: 500;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.social-link:hover {
+  opacity: 0.8;
+}
+
+.social-icon {
+  font-size: 28px;
+  color: #2c2c2c;
+  filter: brightness(0.7) contrast(1.1) sepia(0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .logo-image {
+    max-width: 160px;
+  }
+  
+  .welcome-title {
+    font-size: 3rem;
+  }
+  
+  .menu-button {
+    padding: 1.1rem 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .contact-info {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .separator {
+    display: none;
+  }
+  
+  .social-icons {
+    gap: 1.5rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .menu-button {
+    border: 2px solid #c4412f;
+    background: #fff;
+    color: #c4412f;
+  }
+}

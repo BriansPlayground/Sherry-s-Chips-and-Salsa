@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Form - Sherry's Eats</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .simple-form {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            color: #DC143C;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #DC143C;
+            padding-bottom: 10px;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .product-card {
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        
+        .product-card:hover {
+            border-color: #DC143C;
+        }
+        
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .product-price {
+            color: #DC143C;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .size-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .size-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .size-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            background: #DC143C;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qty-btn:hover {
+            background: #B8121F;
+        }
+        
+        .qty-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .qty-display {
+            font-size: 16px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .delivery-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .form-group select,
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #DC143C;
+        }
+        
+        .delivery-dates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .date-option {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .date-option:hover {
+            border-color: #DC143C;
+            background: #fff5f5;
+        }
+        
+        .date-option.selected {
+            border-color: #DC143C;
+            background: #DC143C;
+            color: white;
+        }
+        
+        .date-day {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .date-details {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .customer-info {
+            background: #fff;
+            border: 2px solid #DC143C;
+            border-radius: 10px;
+            padding: 25px;
+        }
+        
+        .customer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .order-summary {
+            background: #DC143C;
+            color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .summary-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .summary-total {
+            font-size: 18px;
+            font-weight: bold;
+            border-top: 2px solid white;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        
+        .submit-btn {
+            background: #002868;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background: #001a4d;
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row,
+            .customer-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="simple-form">
+        <h1 style="text-align: center; color: #DC143C; margin-bottom: 30px;">Order Form - Sherry's Eats</h1>
+        
+        <!-- Products Section -->
+        <div class="form-section">
+            <h2 class="section-title">Choose Your Products</h2>
+            <div class="product-grid">
+                <!-- Salsa Options -->
+                <div class="product-card">
+                    <div class="product-name">Mild Salsa</div>
+                    <div class="product-price">$12</div>
+                    <div class="size-options">
+                        <div class="size-option">
+                            <div class="size-label">16oz</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="updateQuantity('mild-16oz', -1)">-</button>
+                                <span class="qty-display" id="mild-16oz-qty">0</span>
+                                <button class="qty-btn" onclick="updateQuantity('mild-16oz', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="size-option">
+                            <div class="size-label">32oz</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="updateQuantity('mild-32oz', -1)">-</button>
+                                <span class="qty-display" id="mild-32oz-qty">0</span>
+                                <button class="qty-btn" onclick="updateQuantity('mild-32oz', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-name">Medium Salsa</div>
+                    <div class="product-price">$12</div>
+                    <div class="size-options">
+                        <div class="size-option">
+                            <div class="size-label">16oz</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="updateQuantity('medium-16oz', -1)">-</button>
+                                <span class="qty-display" id="medium-16oz-qty">0</span>
+                                <button class="qty-btn" onclick="updateQuantity('medium-16oz', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="size-option">
+                            <div class="size-label">32oz</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="updateQuantity('medium-32oz', -1)">-</button>
+                                <span class="qty-display" id="medium-32oz-qty">0</span>
+                                <button class="qty-btn" onclick="updateQuantity('medium-32oz', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-name">Hot Salsa</div>
+                    <div class="product-price">$12</div>
+                    <div class="size-options">
+                        <div class="size-option">
+                            <div class="size-label">16oz</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="updateQuantity('hot-16oz', -1)">-</button>
+                                <span class="qty-display" id="hot-16oz-qty">0</span>
+                                <button class="qty-btn" onclick="updateQuantity('hot-16oz', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="size-option">
+                            <div class="size-label">32oz</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="updateQuantity('hot-32oz', -1)">-</button>
+                                <span class="qty-display" id="hot-32oz-qty">0</span>
+                                <button class="qty-btn" onclick="updateQuantity('hot-32oz', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-name">Fresh Chips</div>
+                    <div class="product-price">$8</div>
+                    <div class="size-options">
+                        <div class="size-option">
+                            <div class="size-label">1lb Bag</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="updateQuantity('chips', -1)">-</button>
+                                <span class="qty-display" id="chips-qty">0</span>
+                                <button class="qty-btn" onclick="updateQuantity('chips', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-name">Salsa Platter</div>
+                    <div class="product-price">$30</div>
+                    <div class="size-options">
+                        <div class="size-option">
+                            <div class="size-label">8oz each + 1lb chips</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="updateQuantity('platter', -1)">-</button>
+                                <span class="qty-display" id="platter-qty">0</span>
+                                <button class="qty-btn" onclick="updateQuantity('platter', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Delivery Section -->
+        <div class="form-section">
+            <h2 class="section-title">Delivery Information</h2>
+            <div class="delivery-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">Select Your City:</label>
+                        <select id="city" onchange="updateDeliveryInfo()">
+                            <option value="">Choose a city...</option>
+                            <option value="Metamora">Metamora</option>
+                            <option value="Davison">Davison</option>
+                            <option value="Lapeer">Lapeer</option>
+                            <option value="Imlay City">Imlay City</option>
+                            <option value="Capac">Capac</option>
+                            <option value="Armada">Armada</option>
+                            <option value="Waterford">Waterford</option>
+                            <option value="Clarkston">Clarkston</option>
+                            <option value="Oxford">Oxford</option>
+                            <option value="Lake Orion">Lake Orion</option>
+                            <option value="Auburn Hills">Auburn Hills</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="delivery-dates" style="display: none;">
+                    <h3>Available Delivery Dates:</h3>
+                    <div class="delivery-dates" id="date-options">
+                        <!-- Dates will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Customer Information -->
+        <div class="form-section">
+            <h2 class="section-title">Your Information</h2>
+            <div class="customer-info">
+                <div class="customer-grid">
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="address">Delivery Address *</label>
+                        <input type="text" id="address" placeholder="Street address, city, zip" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="referral">How did you hear about us?</label>
+                        <select id="referral">
+                            <option value="">Select...</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Friend">Friend/Family</option>
+                            <option value="Google">Google Search</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="referralName">Referral Name (if applicable)</label>
+                        <input type="text" id="referralName">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <div class="summary-title">Order Summary</div>
+            <div id="order-items">
+                <div class="summary-item">
+                    <span>No items selected</span>
+                    <span>$0.00</span>
+                </div>
+            </div>
+            <div class="summary-total">
+                <span>Total: $<span id="total-price">0.00</span></span>
+            </div>
+            <button class="submit-btn" id="submit-btn" onclick="submitOrder()" disabled>Place Order</button>
+        </div>
+    </div>
+
+    <script>
+        // Product prices
+        const prices = {
+            'mild-16oz': 12,
+            'mild-32oz': 12,
+            'medium-16oz': 12,
+            'medium-32oz': 12,
+            'hot-16oz': 12,
+            'hot-32oz': 12,
+            'chips': 8,
+            'platter': 30
+        };
+        
+        // Delivery dates for each city (you can update these)
+        const deliveryDates = {
+            'Metamora': ['2025-09-19', '2025-09-26'],
+            'Davison': ['2025-09-20', '2025-09-27'],
+            'Lapeer': ['2025-09-21', '2025-09-28'],
+            'Imlay City': ['2025-09-19', '2025-09-26'],
+            'Capac': ['2025-09-20', '2025-09-27'],
+            'Armada': ['2025-09-21', '2025-09-28'],
+            'Waterford': ['2025-09-21', '2025-09-28'],
+            'Clarkston': ['2025-09-19', '2025-09-26'],
+            'Oxford': ['2025-09-20', '2025-09-27'],
+            'Lake Orion': ['2025-09-21', '2025-09-28'],
+            'Auburn Hills': ['2025-09-19', '2025-09-26']
+        };
+        
+        let selectedDate = null;
+        
+        function updateQuantity(product, change) {
+            const qtyElement = document.getElementById(product + '-qty');
+            let currentQty = parseInt(qtyElement.textContent) || 0;
+            let newQty = Math.max(0, currentQty + change);
+            qtyElement.textContent = newQty;
+            updateOrderSummary();
+        }
+        
+        function updateDeliveryInfo() {
+            const city = document.getElementById('city').value;
+            const deliveryDatesDiv = document.getElementById('delivery-dates');
+            const dateOptions = document.getElementById('date-options');
+            
+            if (city && deliveryDates[city]) {
+                deliveryDatesDiv.style.display = 'block';
+                dateOptions.innerHTML = '';
+                
+                deliveryDates[city].forEach(date => {
+                    const dateObj = new Date(date);
+                    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+                    const monthDay = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    
+                    const dateOption = document.createElement('div');
+                    dateOption.className = 'date-option';
+                    dateOption.onclick = () => selectDate(date, dateOption);
+                    dateOption.innerHTML = `
+                        <div class="date-day">${dayName}</div>
+                        <div class="date-details">${monthDay}</div>
+                    `;
+                    dateOptions.appendChild(dateOption);
+                });
+            } else {
+                deliveryDatesDiv.style.display = 'none';
+                selectedDate = null;
+            }
+        }
+        
+        function selectDate(date, element) {
+            // Remove previous selection
+            document.querySelectorAll('.date-option').forEach(el => el.classList.remove('selected'));
+            
+            // Add selection to clicked element
+            element.classList.add('selected');
+            selectedDate = date;
+            
+            updateOrderSummary();
+        }
+        
+        function updateOrderSummary() {
+            const orderItems = document.getElementById('order-items');
+            const totalPrice = document.getElementById('total-price');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            let items = [];
+            let total = 0;
+            
+            // Calculate items and total
+            Object.keys(prices).forEach(product => {
+                const qtyElement = document.getElementById(product + '-qty');
+                const qty = parseInt(qtyElement.textContent) || 0;
+                
+                if (qty > 0) {
+                    const price = prices[product] * qty;
+                    total += price;
+                    
+                    const productName = getProductName(product);
+                    items.push({
+                        name: productName,
+                        qty: qty,
+                        price: price
+                    });
+                }
+            });
+            
+            // Update display
+            if (items.length === 0) {
+                orderItems.innerHTML = '<div class="summary-item"><span>No items selected</span><span>$0.00</span></div>';
+                totalPrice.textContent = '0.00';
+                submitBtn.disabled = true;
+            } else {
+                orderItems.innerHTML = items.map(item => 
+                    `<div class="summary-item">
+                        <span>${item.qty}x ${item.name}</span>
+                        <span>$${item.price.toFixed(2)}</span>
+                    </div>`
+                ).join('');
+                totalPrice.textContent = total.toFixed(2);
+                
+                // Enable submit if we have items and delivery info
+                const city = document.getElementById('city').value;
+                submitBtn.disabled = !(items.length > 0 && city && selectedDate);
+            }
+        }
+        
+        function getProductName(product) {
+            const names = {
+                'mild-16oz': 'Mild Salsa (16oz)',
+                'mild-32oz': 'Mild Salsa (32oz)',
+                'medium-16oz': 'Medium Salsa (16oz)',
+                'medium-32oz': 'Medium Salsa (32oz)',
+                'hot-16oz': 'Hot Salsa (16oz)',
+                'hot-32oz': 'Hot Salsa (32oz)',
+                'chips': 'Fresh Chips (1lb)',
+                'platter': 'Salsa Platter'
+            };
+            return names[product] || product;
+        }
+        
+        function submitOrder() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const email = document.getElementById('email').value;
+            const referral = document.getElementById('referral').value;
+            const referralName = document.getElementById('referralName').value;
+            
+            // Validate required fields
+            if (!firstName || !lastName || !phone || !address || !city || !selectedDate) {
+                alert('Please fill in all required fields and select a delivery date.');
+                return;
+            }
+            
+            // Collect order items
+            let orderItems = [];
+            Object.keys(prices).forEach(product => {
+                const qtyElement = document.getElementById(product + '-qty');
+                const qty = parseInt(qtyElement.textContent) || 0;
+                
+                if (qty > 0) {
+                    orderItems.push({
+                        product: product,
+                        quantity: qty,
+                        price: prices[product]
+                    });
+                }
+            });
+            
+            const orderData = {
+                customer: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    phone: phone,
+                    email: email,
+                    address: address
+                },
+                delivery: {
+                    city: city,
+                    date: selectedDate
+                },
+                items: orderItems,
+                referral: referral,
+                referral_name: referralName,
+                total: parseFloat(document.getElementById('total-price').textContent)
+            };
+            
+            // Submit order
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Order placed successfully! We\'ll contact you to confirm delivery details.');
+                    // Reset form
+                    location.reload();
+                } else {
+                    alert('Error placing order. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error placing order. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>

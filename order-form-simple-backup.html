@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Order Chips & Salsa - Sherry's Eats</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Order fresh chips and salsa from Sherry's Eats. Local, spicy, and real—made with love in Michigan.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    /* Reset and Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f5f1e8;
+      color: #002868;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .header-logo {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header-logo img {
+      max-width: 300px;
+      height: auto;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    }
+
+    .page-title {
+      text-align: center;
+      font-family: 'Pacifico', cursive;
+      font-size: 3rem;
+      color: #002868;
+      margin-bottom: 1rem;
+    }
+
+    .page-subtitle {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #6c757d;
+      margin-bottom: 3rem;
+    }
+
+    /* Card System */
+    .card-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .order-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      padding: 2.5rem;
+      max-width: 800px;
+      width: 100%;
+      display: none;
+    }
+
+    .order-card.active {
+      display: block;
+    }
+
+    .card-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid #f5f1e8;
+    }
+    
+    .card-header h2 {
+      font-family: 'Pacifico', cursive;
+      color: #002868;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-header p {
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+
+    /* Running Total */
+    .running-total {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #DC143C;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(220, 20, 60, 0.3);
+      font-weight: 700;
+      font-size: 1.1rem;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .running-total.zero {
+      background: #6c757d;
+    }
+
+    .running-total:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(220, 20, 60, 0.4);
+    }
+
+    /* Delivery Summary */
+    .delivery-summary-box {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      background: #002868;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 40, 104, 0.3);
+      font-weight: 600;
+      font-size: 1rem;
+      z-index: 1000;
+      transition: all 0.3s ease;
+      display: none;
+    }
+
+    .delivery-summary-box.show {
+      display: block;
+    }
+
+    .delivery-summary-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(0, 40, 104, 0.4);
+    }
+
+    .delivery-summary-title {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #DC143C;
+    }
+
+    .delivery-summary-item {
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    .delivery-summary-item:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Progress Indicator */
+    .progress-bar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+
+    .progress-step {
+      display: flex;
+      align-items: center;
+      margin: 0 1rem;
+    }
+
+    .progress-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e9ecef;
+      color: #6c757d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin-right: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .progress-step.active .progress-circle {
+      background: #DC143C;
+      color: white;
+    }
+
+    .progress-step.completed .progress-circle {
+      background: #28a745;
+      color: white;
+    }
+
+    .progress-line {
+      width: 60px;
+      height: 3px;
+      background: #e9ecef;
+      margin: 0 0.5rem;
+    }
+
+    .progress-line.active {
+      background: #DC143C;
+    }
+
+    /* Order Options Card */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .product-card {
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .product-card:hover {
+      border-color: #DC143C;
+      transform: translateY(-2px);
+    }
+
+    .product-card.selected {
+      border-color: #DC143C;
+      background: #fff5f5;
+    }
+
+    .product-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .product-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #002868;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-description {
+      color: #6c757d;
+      margin-bottom: 1rem;
+    }
+
+    .size-options {
+      margin-bottom: 1rem;
+    }
+
+    .size-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+    }
+
+    .size-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .size-name {
+      font-weight: 600;
+      color: #002868;
+      font-size: 0.9rem;
+    }
+
+    .size-price {
+      font-weight: 700;
+      color: #DC143C;
+      font-size: 1rem;
+    }
+
+    .product-price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #DC143C;
+      margin-bottom: 1rem;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .quantity-btn {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #DC143C;
+      background: white;
+      color: #DC143C;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .quantity-btn:hover {
+      background: #DC143C;
+      color: white;
+    }
+
+    .quantity-display {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #002868;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    /* Delivery & Calendar Card */
+    .delivery-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .city-selector, .events-selector {
+      margin-bottom: 2rem;
+    }
+
+    .city-selector label, .events-selector label {
+      display: block;
+      font-weight: 600;
+      color: #002868;
+      margin-bottom: 0.5rem;
+    }
+
+    .city-selector select {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: white;
+      cursor: pointer;
+    }
+
+    .city-selector select:focus {
+      outline: none;
+      border-color: #DC143C;
+    }
+
+    .calendar-container {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid #e9ecef;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .calendar-nav {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #DC143C;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+    
+    .calendar-title {
+      font-weight: 700;
+      color: #002868;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+
+    .calendar-day {
+      padding: 0.5rem;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    
+    .calendar-day:hover {
+      background: #f8f9fa;
+    }
+    
+    .calendar-day.has-event {
+      position: relative;
+      background: #f8f9fa;
+      border: 2px solid #DC143C;
+    }
+
+    .calendar-day.has-event:hover {
+      background: #e9ecef;
+    }
+    
+    .event-dot {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 8px;
+      height: 8px;
+      background: #DC143C;
+      border-radius: 50%;
+    }
+
+    .calendar-day.selected {
+      background: #002868;
+      color: white;
+    }
+
+    .map-container {
+      height: 300px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e9ecef;
+    }
+
+    /* Customer Information Card */
+    .customer-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #002868;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #DC143C;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+    }
+
+    /* Navigation Buttons */
+    .card-navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid #f5f1e8;
+    }
+
+    .nav-btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-btn.secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .nav-btn.secondary:hover {
+      background: #545b62;
+    }
+
+    .nav-btn.primary {
+      background: #DC143C;
+      color: white;
+    }
+
+    .nav-btn.primary:hover {
+      background: #b01030;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Summary Section */
+    .order-summary {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .summary-title {
+      font-weight: 700;
+      color: #002868;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #DC143C;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .delivery-section {
+        grid-template-columns: 1fr;
+      }
+      
+      .customer-form {
+        grid-template-columns: 1fr;
+      }
+      
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .running-total {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+      }
+      
+      .delivery-summary-box {
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+    <!-- Running Total -->
+  <div class="running-total" id="running-total">
+    Total: $0.00
+  </div>
+
+  <!-- Delivery Summary -->
+  <div class="delivery-summary-box" id="delivery-summary-box">
+    <div class="delivery-summary-title">Delivery Details</div>
+    <div class="delivery-summary-item" id="delivery-city">City: Not selected</div>
+    <div class="delivery-summary-item" id="delivery-date">Date: Not selected</div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header-logo">
+      <img src="sherrys-logo.png" alt="Sherry's Eats Logo">
+    </div>
+
+    <h1 class="page-title">Order Chips & Salsa</h1>
+    <p class="page-subtitle">Fresh, homemade chips and salsa delivered to your door</p>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="progress-step active" id="step-1">
+        <div class="progress-circle">1</div>
+        <span>Order Options</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" id="step-2">
+        <div class="progress-circle">2</div>
+        <span>Delivery & Calendar</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" id="step-3">
+        <div class="progress-circle">3</div>
+        <span>Customer Info</span>
+      </div>
+      </div>
+      
+    <!-- Card 1: Order Options -->
+    <div class="card-container">
+      <div class="order-card active" id="order-options-card">
+        <div class="card-header">
+          <h2>Choose Your Products</h2>
+          <p>Select the chips and salsa you'd like to order</p>
+          </div>
+          
+        <div class="product-grid" id="product-grid">
+          <!-- Products will be loaded here -->
+        </div>
+        
+        <div class="card-navigation">
+          <div></div>
+          <button class="nav-btn primary" onclick="nextStep()" id="next-btn-1" disabled>
+            Continue to Delivery
+          </button>
+            </div>
+          </div>
+        </div>
+
+    <!-- Card 2: Delivery & Calendar -->
+    <div class="card-container">
+      <div class="order-card" id="delivery-card">
+        <div class="card-header">
+          <h2>Delivery & Scheduling</h2>
+          <p>Choose your city and delivery date</p>
+        </div>
+        
+        <div class="delivery-section">
+          <div class="left-panel">
+            <div class="city-selector">
+              <label for="city-select">Select Your City:</label>
+              <select id="city-select">
+                <option value="">Choose a city...</option>
+            </select>
+            </div>
+            
+            <div class="events-selector">
+              <label for="events-select">Or Choose an Event:</label>
+              <select id="events-select">
+                <option value="">Choose an event...</option>
+            </select>
+            </div>
+            
+            <div class="calendar-container">
+              <div class="calendar-header">
+                <button class="calendar-nav" onclick="previousMonth()">‹</button>
+                <div class="calendar-title" id="calendar-title">August 2025</div>
+                <button class="calendar-nav" onclick="nextMonth()">›</button>
+            </div>
+              <div class="calendar-grid" id="calendar-grid">
+                <!-- Calendar will be generated here -->
+              </div>
+            </div>
+            </div>
+            
+          <div class="right-panel">
+            <div class="map-container" id="map">
+              <!-- Map will be loaded here -->
+            </div>
+          </div>
+            </div>
+            
+        <div class="order-summary" id="delivery-summary" style="display: none;">
+          <div class="summary-title">Order Summary</div>
+          <div id="summary-content">
+            <!-- Summary will be populated here -->
+          </div>
+          </div>
+          
+        <div class="card-navigation">
+          <button class="nav-btn secondary" onclick="previousStep()">
+            Back to Order
+          </button>
+          <button class="nav-btn primary" onclick="nextStep()" id="next-btn-2" disabled>
+            Continue to Customer Info
+          </button>
+        </div>
+          </div>
+        </div>
+
+    <!-- Card 3: Customer Information -->
+    <div class="card-container">
+      <div class="order-card" id="customer-card">
+        <div class="card-header">
+          <h2>Customer Information</h2>
+          <p>Tell us how to reach you</p>
+        </div>
+        
+        <form class="customer-form" id="customer-form">
+          <div class="form-group">
+            <label for="customer-name">Full Name *</label>
+            <input type="text" id="customer-name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="customer-phone">Phone Number *</label>
+            <input type="tel" id="customer-phone" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="customer-email">Email Address *</label>
+            <input type="email" id="customer-email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="heard-from">How did you hear about us?</label>
+            <select id="heard-from">
+              <option value="">Select an option...</option>
+              <option value="Website">Website</option>
+              <option value="Social Media">Social Media</option>
+              <option value="Friend/Family">Friend/Family</option>
+              <option value="Event">Event</option>
+              <option value="Other">Other</option>
+            </select>
+        </div>
+        
+          <div class="form-group full-width">
+            <div class="checkbox-group">
+              <input type="checkbox" id="email-optin" checked>
+              <label for="email-optin">I'd like to receive email updates about new products and events</label>
+    </div>
+  </div>
+
+          <div class="form-group full-width">
+            <div class="checkbox-group">
+              <input type="checkbox" id="sms-optin" checked>
+              <label for="sms-optin">I'd like to receive text messages about delivery updates</label>
+    </div>
+          </div>
+        </form>
+        
+        <div class="order-summary" id="final-summary">
+          <div class="summary-title">Final Order Summary</div>
+          <div id="final-summary-content">
+            <!-- Final summary will be populated here -->
+          </div>
+        </div>
+        
+        <div class="card-navigation">
+          <button class="nav-btn secondary" onclick="previousStep()">
+            Back to Delivery
+      </button>
+          <button class="nav-btn primary" onclick="submitOrder()" id="submit-btn">
+            Place Order
+      </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Global variables
+    let currentStep = 1;
+    let selectedProducts = [];
+    let selectedCity = '';
+    let selectedDate = '';
+    let selectedEvent = null;
+    let map = null;
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let events = [];
+    let cities = [];
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProducts();
+      initializeMap();
+      
+      // Load data asynchronously
+      Promise.all([
+        loadEvents(),
+        loadCities()
+      ]).then(() => {
+        generateCalendar();
+      });
+    });
+
+    // Load product data
+    function loadProducts() {
+      const products = [
+        { 
+          id: 1, 
+          name: 'Mild Salsa', 
+          description: 'Perfect for everyone', 
+          icon: '🌶️',
+          sizes: [
+            { size: '16oz', price: 8.00 },
+            { size: '32oz', price: 15.00 }
+          ]
+        },
+        { 
+          id: 2, 
+          name: 'Enjoyable Salsa', 
+          description: 'A bit more heat', 
+          icon: '🔥',
+          sizes: [
+            { size: '16oz', price: 8.00 },
+            { size: '32oz', price: 15.00 }
+          ]
+        },
+        { 
+          id: 3, 
+          name: 'Burn Your Ass Hot Salsa', 
+          description: 'For the brave ones', 
+          icon: '💀',
+          sizes: [
+            { size: '16oz', price: 8.00 },
+            { size: '32oz', price: 15.00 }
+          ]
+        },
+        { 
+          id: 4, 
+          name: 'Inferno Salsa', 
+          description: 'Nuclear heat level', 
+          icon: '☢️',
+          sizes: [
+            { size: '16oz', price: 8.00 },
+            { size: '32oz', price: 15.00 }
+          ]
+        },
+        { 
+          id: 5, 
+          name: 'Fresh Chips', 
+          description: 'Made daily', 
+          icon: '🥔',
+          sizes: [
+            { size: '1lb bag', price: 8.00 }
+          ]
+        },
+        { 
+          id: 6, 
+          name: 'Salsa Platter', 
+          description: '8oz of each flavor + 1lb chips', 
+          icon: '🍽️',
+          sizes: [
+            { size: 'Complete Platter', price: 30.00 }
+          ]
+        }
+      ];
+
+      const productGrid = document.getElementById('product-grid');
+      productGrid.innerHTML = '';
+
+      products.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+        
+        // Create size options with individual quantity controls
+        const sizeOptions = product.sizes.map((size, sizeIndex) => {
+          const sizeId = `${product.id}-${sizeIndex}`;
+          return `
+            <div class="size-option">
+              <div class="size-info">
+                <span class="size-name">${size.size}</span>
+                <span class="size-price">$${size.price.toFixed(2)}</span>
+              </div>
+              <div class="quantity-controls">
+                <button class="quantity-btn" onclick="changeSizeQuantity('${sizeId}', -1)">-</button>
+                <div class="quantity-display" id="qty-${sizeId}">0</div>
+                <button class="quantity-btn" onclick="changeSizeQuantity('${sizeId}', 1)">+</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        productCard.innerHTML = `
+          <div class="product-icon">${product.icon}</div>
+          <div class="product-name">${product.name}</div>
+          <div class="product-description">${product.description}</div>
+          <div class="size-options">
+            ${sizeOptions}
+          </div>
+        `;
+        productGrid.appendChild(productCard);
+      });
+    }
+
+    // Change size quantity
+    function changeSizeQuantity(sizeId, change) {
+      const qtyDisplay = document.getElementById(`qty-${sizeId}`);
+      let currentQty = parseInt(qtyDisplay.textContent) || 0;
+      currentQty = Math.max(0, currentQty + change);
+      qtyDisplay.textContent = currentQty;
+      
+      updateSelectedProducts();
+      updateRunningTotal();
+      updateNextButton();
+    }
+
+    // Update selected products array
+    function updateSelectedProducts() {
+      selectedProducts = [];
+      const products = document.querySelectorAll('.product-card');
+      
+      products.forEach((card, index) => {
+        const productId = index + 1;
+        const productName = card.querySelector('.product-name').textContent;
+        
+        // Check each size option for this product
+        const sizeOptions = card.querySelectorAll('.size-option');
+        sizeOptions.forEach((sizeOption, sizeIndex) => {
+          const sizeId = `${productId}-${sizeIndex}`;
+          const qty = parseInt(document.getElementById(`qty-${sizeId}`).textContent);
+          
+          if (qty > 0) {
+            const sizeName = sizeOption.querySelector('.size-name').textContent;
+            const price = parseFloat(sizeOption.querySelector('.size-price').textContent.replace('$', ''));
+            
+            selectedProducts.push({
+              id: `${productId}-${sizeIndex}`,
+              name: `${productName} (${sizeName})`,
+              price: price,
+              quantity: qty
+            });
+          }
+        });
+      });
+    }
+
+    // Update running total
+    function updateRunningTotal() {
+      const total = selectedProducts.reduce((sum, product) => sum + (product.price * product.quantity), 0);
+      const runningTotalElement = document.getElementById('running-total');
+      
+      runningTotalElement.textContent = `Total: $${total.toFixed(2)}`;
+      
+      // Change color based on total
+      if (total === 0) {
+        runningTotalElement.classList.add('zero');
+        } else {
+        runningTotalElement.classList.remove('zero');
+      }
+    }
+
+    // Update delivery summary
+    function updateDeliverySummary() {
+      const deliveryBox = document.getElementById('delivery-summary-box');
+      const cityElement = document.getElementById('delivery-city');
+      const dateElement = document.getElementById('delivery-date');
+      
+      if (selectedCity && selectedDate) {
+        cityElement.textContent = `City: ${selectedCity}`;
+        dateElement.textContent = `Date: ${new Date(selectedDate).toLocaleDateString()}`;
+        deliveryBox.classList.add('show');
+      } else {
+        deliveryBox.classList.remove('show');
+      }
+    }
+
+    // Update next button state
+    function updateNextButton() {
+      const nextBtn = document.getElementById('next-btn-1');
+      nextBtn.disabled = selectedProducts.length === 0;
+    }
+
+    // Navigation functions
+    function nextStep() {
+      if (currentStep < 3) {
+        currentStep++;
+        showStep(currentStep);
+        updateProgress();
+      }
+    }
+
+    function previousStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+        updateProgress();
+      }
+    }
+
+    function showStep(step) {
+      // Hide all cards
+      document.querySelectorAll('.order-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      
+      // Show current card
+      document.getElementById(getCardId(step)).classList.add('active');
+      
+      // Update progress
+      updateProgress();
+      
+      // Load data for current step
+      if (step === 2) {
+        loadDeliveryData();
+      } else if (step === 3) {
+        loadCustomerData();
+      }
+    }
+
+    function getCardId(step) {
+      switch(step) {
+        case 1: return 'order-options-card';
+        case 2: return 'delivery-card';
+        case 3: return 'customer-card';
+        default: return 'order-options-card';
+      }
+    }
+
+    function updateProgress() {
+      document.querySelectorAll('.progress-step').forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        if (index + 1 === currentStep) {
+          step.classList.add('active');
+        } else if (index + 1 < currentStep) {
+          step.classList.add('completed');
+        }
+      });
+      
+      document.querySelectorAll('.progress-line').forEach((line, index) => {
+        line.classList.remove('active');
+        if (index + 1 < currentStep) {
+          line.classList.add('active');
+        }
+      });
+    }
+
+    // Load events from database only
+    async function loadEvents() {
+      try {
+        const dbResponse = await fetch('/api/events');
+        const dbEvents = await dbResponse.json();
+        
+        // Format events from database
+        events = dbEvents.map(event => ({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          date: event.event_date ? event.event_date.split('T')[0] : null,
+          city: event.location || '',
+          source: 'database'
+        })).filter(event => event.date); // Only include events with valid dates
+        
+        console.log('Loaded events:', events);
+        populateEventsDropdown();
+      } catch (error) {
+        console.error('Error loading events:', error);
+        events = [];
+      }
+    }
+    
+    function populateEventsDropdown() {
+      const eventsSelect = document.getElementById('events-select');
+      eventsSelect.innerHTML = '<option value="">Choose an event...</option>';
+      
+      // Group events by date and sort
+      const sortedEvents = events.sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      sortedEvents.forEach(event => {
+        const option = document.createElement('option');
+        option.value = event.id;
+        const eventDate = new Date(event.date).toLocaleDateString();
+        option.textContent = `${eventDate} - ${event.title} (${event.city})`;
+        eventsSelect.appendChild(option);
+      });
+    }
+
+    async function loadCities() {
+      try {
+        const response = await fetch('/api/cities');
+        cities = await response.json();
+        populateCityDropdown();
+        if (map) {
+          updateMapMarkers();
+        }
+      } catch (error) {
+        console.error('Error loading cities:', error);
+        // Fallback to delivery cities
+        cities = ['Metamora', 'Davison', 'Lapeer', 'Imlay City', 'Capac', 'Armada', 'Waterford', 'Clarkston', 'Oxford', 'Lake Orion', 'Auburn Hills'];
+        populateCityDropdown();
+        if (map) {
+          updateMapMarkers();
+        }
+      }
+    }
+
+    function populateCityDropdown() {
+      const citySelect = document.getElementById('city-select');
+      citySelect.innerHTML = '<option value="">Choose a city...</option>';
+      
+      cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+    }
+
+    // City coordinates for delivery area
+    const cityCoordinates = {
+      'Metamora': [42.9406, -83.2889],
+      'Davison': [43.0347, -83.5181],
+      'Lapeer': [43.0514, -83.3181],
+      'Imlay City': [43.0231, -83.0753],
+      'Capac': [43.0095, -82.9285],
+      'Armada': [42.8447, -82.8834],
+      'Waterford': [42.6934, -83.4028],
+      'Clarkston': [42.7359, -83.4189],
+      'Oxford': [42.8247, -83.2647],
+      'Lake Orion': [42.7845, -83.2394],
+      'Auburn Hills': [42.6875, -83.2342]
+    };
+
+    // Initialize map
+    function initializeMap() {
+      map = L.map('map').setView([43.0000, -83.2000], 10); // Central delivery area
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      
+      // Make sure map is properly initialized
+      setTimeout(() => {
+        if (cities && cities.length > 0) {
+          updateMapMarkers();
+        }
+      }, 100);
+    }
+
+    // Update map markers when cities are loaded
+    function updateMapMarkers() {
+      if (!map) return;
+      
+      // Clear existing markers
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Marker || layer instanceof L.Circle) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      // Add new markers for each city
+      cities.forEach(city => {
+        const coords = cityCoordinates[city] || [42.3314, -83.0458]; // Default to Detroit if coordinates not found
+        
+        // Create custom icon for selected vs unselected cities
+        const isSelected = selectedCity === city;
+        const iconColor = isSelected ? '#DC143C' : '#002868';
+        const iconSize = isSelected ? [25, 35] : [20, 30];
+        
+        const customIcon = L.divIcon({
+          html: `<div style="background-color: ${iconColor}; width: ${iconSize[0]}px; height: ${iconSize[1]}px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+          iconSize: iconSize,
+          iconAnchor: [iconSize[0]/2, iconSize[1]],
+          className: 'custom-marker'
+        });
+        
+        const marker = L.marker(coords, { icon: customIcon }).addTo(map)
+          .bindPopup(`<strong>${city}</strong><br>Click to select for delivery`)
+          .on('click', () => selectCityFromMap(city));
+      });
+    }
+
+    // Calendar functions
+    function generateCalendar() {
+      const calendarGrid = document.getElementById('calendar-grid');
+      const calendarTitle = document.getElementById('calendar-title');
+      
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+      const startDate = new Date(firstDay);
+      startDate.setDate(startDate.getDate() - firstDay.getDay());
+      
+      calendarTitle.textContent = `${getMonthName(currentMonth)} ${currentYear}`;
+      calendarGrid.innerHTML = '';
+      
+      // Add day headers
+      ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'calendar-day';
+        dayHeader.style.fontWeight = '700';
+        dayHeader.textContent = day;
+        calendarGrid.appendChild(dayHeader);
+      });
+      
+      // Add calendar days
+      for (let i = 0; i < 42; i++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day';
+        
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + i);
+        
+        if (currentDate.getMonth() === currentMonth) {
+          dayDiv.textContent = currentDate.getDate();
+          dayDiv.onclick = () => selectDate(currentDate);
+          
+          // Check if date has events
+          const dateString = currentDate.toISOString().split('T')[0];
+          const eventsForDate = events.filter(event => event.date === dateString);
+          if (eventsForDate.length > 0) {
+            dayDiv.classList.add('has-event');
+            dayDiv.title = eventsForDate.map(e => e.title).join(', ');
+            
+            // Add event indicator dot
+            const eventDot = document.createElement('div');
+            eventDot.className = 'event-dot';
+            dayDiv.appendChild(eventDot);
+          }
+        }
+        
+        calendarGrid.appendChild(dayDiv);
+      }
+    }
+
+    function getMonthName(month) {
+      const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                     'July', 'August', 'September', 'October', 'November', 'December'];
+      return months[month];
+    }
+
+    function previousMonth() {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      generateCalendar();
+    }
+
+    function nextMonth() {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      generateCalendar();
+    }
+
+    // Event handlers
+    function selectDate(date) {
+      selectedDate = date.toISOString().split('T')[0];
+      const eventsForDate = events.filter(event => event.date === selectedDate);
+      
+      if (eventsForDate.length > 0) {
+        // If multiple events on same date, show selection dialog
+        if (eventsForDate.length === 1) {
+          selectedEvent = eventsForDate[0];
+          selectedCity = selectedEvent.city;
+          document.getElementById('city-select').value = selectedCity;
+          document.getElementById('events-select').value = selectedEvent.id;
+          updateMapSelection(selectedCity);
+        } else {
+          // Multiple events - let user choose
+          showEventSelectionDialog(eventsForDate, date);
+        }
+      }
+      
+      updateCalendarSelection();
+      updateDeliverySummary();
+      updateNextButton2();
+    }
+    
+    function showEventSelectionDialog(eventsForDate, date) {
+      const eventNames = eventsForDate.map(e => e.title).join(', ');
+      const selectedEvent = eventsForDate[0]; // Default to first event
+      
+      if (confirm(`Multiple events on ${date.toLocaleDateString()}: ${eventNames}\n\nSelect the first event (${selectedEvent.title})?`)) {
+        selectedEvent = selectedEvent;
+        selectedCity = selectedEvent.city;
+        document.getElementById('city-select').value = selectedCity;
+        document.getElementById('events-select').value = selectedEvent.id;
+        updateMapSelection(selectedCity);
+      }
+    }
+
+    function selectCityFromMap(city) {
+      selectedCity = city;
+      document.getElementById('city-select').value = city;
+      
+      // Find next event for this city
+      const cityEvents = events.filter(event => event.city === city);
+      if (cityEvents.length > 0) {
+        const nextEvent = cityEvents[0]; // You might want to sort by date
+        selectedEvent = nextEvent;
+        selectedDate = nextEvent.date;
+        updateCalendarSelection();
+      }
+      
+      updateDeliverySummary();
+      updateNextButton2();
+    }
+
+    function updateCalendarSelection() {
+      document.querySelectorAll('.calendar-day').forEach(day => {
+        day.classList.remove('selected');
+        if (day.textContent && selectedDate) {
+          const dayDate = new Date(currentYear, currentMonth, parseInt(day.textContent));
+          if (dayDate.toISOString().split('T')[0] === selectedDate) {
+            day.classList.add('selected');
+          }
+        }
+      });
+    }
+
+    function updateMapSelection(city) {
+      // Update map to highlight selected city
+      if (!map) return;
+      
+      // Find the city coordinates
+      const coords = cityCoordinates[city];
+      if (coords) {
+        // Center map on selected city with smooth animation
+        map.setView(coords, 12, { animate: true, duration: 1 });
+        
+        // Add a circle highlight around the selected city
+        if (window.selectedCityCircle) {
+          map.removeLayer(window.selectedCityCircle);
+        }
+        
+        window.selectedCityCircle = L.circle(coords, {
+          color: '#DC143C',
+          fillColor: '#DC143C',
+          fillOpacity: 0.1,
+          radius: 3000, // 3km radius
+          weight: 3
+        }).addTo(map);
+        
+        // Add a label for the selected city
+        if (window.selectedCityLabel) {
+          map.removeLayer(window.selectedCityLabel);
+        }
+        
+        window.selectedCityLabel = L.marker(coords, {
+          icon: L.divIcon({
+            html: `<div style="background-color: #DC143C; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid white;">${city}</div>`,
+            iconSize: [120, 40],
+            iconAnchor: [60, 40],
+            className: 'city-label'
+          })
+        }).addTo(map);
+        
+        // Refresh markers to show updated selection
+        updateMapMarkers();
+      }
+    }
+
+    function updateDeliverySummary() {
+      const summary = document.getElementById('delivery-summary');
+      const content = document.getElementById('summary-content');
+      
+      if (selectedCity && selectedDate) {
+        content.innerHTML = `
+          <div class="summary-item">
+            <span>Delivery City:</span>
+            <span>${selectedCity}</span>
+          </div>
+          <div class="summary-item">
+            <span>Delivery Date:</span>
+            <span>${new Date(selectedDate).toLocaleDateString()}</span>
+          </div>
+          ${selectedEvent ? `<div class="summary-item">
+            <span>Event:</span>
+            <span>${selectedEvent.title}</span>
+          </div>` : ''}
+        `;
+        summary.style.display = 'block';
+      } else {
+        summary.style.display = 'none';
+      }
+    }
+
+    function updateNextButton2() {
+      const nextBtn = document.getElementById('next-btn-2');
+      nextBtn.disabled = !(selectedCity && selectedDate);
+    }
+
+    function loadDeliveryData() {
+      // Load any necessary data for delivery step
+      updateDeliverySummary();
+      updateNextButton2();
+    }
+
+    function loadCustomerData() {
+      // Load any necessary data for customer step
+      updateFinalSummary();
+    }
+
+    function updateFinalSummary() {
+      const content = document.getElementById('final-summary-content');
+      const total = selectedProducts.reduce((sum, product) => sum + (product.price * product.quantity), 0);
+      
+      content.innerHTML = `
+        <div class="summary-item">
+          <span>Products:</span>
+          <span>${selectedProducts.map(p => `${p.name} x${p.quantity}`).join(', ')}</span>
+        </div>
+        <div class="summary-item">
+          <span>Delivery City:</span>
+          <span>${selectedCity}</span>
+        </div>
+        <div class="summary-item">
+          <span>Delivery Date:</span>
+          <span>${new Date(selectedDate).toLocaleDateString()}</span>
+        </div>
+        <div class="summary-item">
+          <span>Total:</span>
+          <span>$${total.toFixed(2)}</span>
+        </div>
+      `;
+      
+      // Update running total to match final summary
+      updateRunningTotal();
+    }
+
+    function submitOrder() {
+      // Validate form
+      const form = document.getElementById('customer-form');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+          return;
+        }
+        
+      // Collect form data
+        const orderData = {
+          customer: {
+          name: document.getElementById('customer-name').value,
+          phone: document.getElementById('customer-phone').value,
+          email: document.getElementById('customer-email').value,
+          heard_from: document.getElementById('heard-from').value,
+          email_optin: document.getElementById('email-optin').checked,
+          sms_optin: document.getElementById('sms-optin').checked
+        },
+        items: selectedProducts,
+        delivery_date: selectedDate,
+        delivery_location: selectedCity,
+        event_id: selectedEvent ? selectedEvent.id : null
+        };
+        
+        // Submit order
+      fetch('/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData)
+        })
+      .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+          alert('Order submitted successfully! Order #' + data.order_id);
+          // Reset form or redirect
+          window.location.href = 'index.html';
+          } else {
+            alert('Error submitting order: ' + data.message);
+          }
+        })
+        .catch(error => {
+        console.error('Error:', error);
+          alert('Error submitting order: ' + error.message);
+        });
+    }
+
+    // City dropdown change handler
+    document.getElementById('city-select').addEventListener('change', function() {
+      selectedCity = this.value;
+      if (selectedCity) {
+        selectCityFromMap(selectedCity);
+        // Clear events selection when city is manually selected
+        document.getElementById('events-select').value = '';
+        selectedEvent = null;
+      }
+      updateDeliverySummary();
+    });
+    
+    // Events dropdown change handler
+    document.getElementById('events-select').addEventListener('change', function() {
+      const eventId = this.value;
+      if (eventId) {
+        selectedEvent = events.find(event => event.id == eventId);
+        if (selectedEvent) {
+          selectedCity = selectedEvent.city;
+          selectedDate = selectedEvent.date;
+          document.getElementById('city-select').value = selectedCity;
+          updateMapSelection(selectedCity);
+          updateCalendarSelection();
+          updateDeliverySummary();
+          updateNextButton2();
+        }
+      }
+    });
+  </script>
+</body>
+</html> 

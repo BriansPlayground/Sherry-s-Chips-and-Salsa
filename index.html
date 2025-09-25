@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sherry's Eats - Great Taste That Can't Be Beat!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Locally made chips, fresh salsa, breakfast burritos, and catering—always with a smile. Made in Michigan since 2001.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Reset and Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f5f1e8;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 0%, transparent 50%);
+      color: #002868;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Container */
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      text-align: center;
+      background: transparent;
+      position: relative;
+    }
+
+    /* Logo Section with Brush Strokes */
+    .logo-section {
+      margin: 2rem 0 2.5rem 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .logo-image {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+      margin: 2rem 0 3rem 0;
+    }
+
+    .welcome-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 3.5rem;
+      font-weight: 400;
+      color: #002868;
+      margin-bottom: 1rem;
+      line-height: 1.1;
+      letter-spacing: 0.5px;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.1rem;
+      color: #002868;
+      opacity: 0.85;
+      max-width: 400px;
+      margin: 0 auto;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    /* Buttons Section */
+    .buttons-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin: 2.5rem 0 3rem 0;
+    }
+
+    .menu-button {
+      display: block;
+      background: #DC143C;
+      color: #FFFFFF;
+      text-decoration: none;
+      padding: 1.2rem 2.5rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      border: none;
+      font-family: 'Nunito', sans-serif;
+      letter-spacing: 0.5px;
+      box-shadow: 0 3px 6px rgba(220, 20, 60, 0.25);
+    }
+
+    .menu-button:hover {
+      background: #b91c47;
+      box-shadow: 0 5px 10px rgba(220, 20, 60, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .button-text {
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+
+    /* Service Cards */
+    .service-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .service-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #DC143C, #002868);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .service-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      border-color: #DC143C;
+    }
+
+    .service-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .service-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .service-card h3 {
+      color: #002868;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .service-card p {
+      color: #6c757d;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .card-cta {
+      color: #DC143C;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+
+    .service-card:hover .card-cta {
+      color: #002868;
+    }
+
+    /* Footer Section */
+    .footer-section {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(0, 40, 104, 0.15);
+    }
+
+    .michigan-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .chili-icon {
+      font-size: 1.2rem;
+      transform: rotate(45deg);
+    }
+
+    .michigan-text {
+      font-weight: 600;
+      color: #002868;
+      font-size: 1rem;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .contact-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      font-family: 'Nunito', sans-serif;
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-link {
+      color: #002868;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .contact-link:hover {
+      color: #DC143C;
+    }
+
+    .separator {
+      color: #002868;
+      opacity: 0.6;
+      font-weight: 500;
+    }
+
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 45px;
+      height: 45px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .social-link:hover {
+      opacity: 0.8;
+    }
+
+    .social-icon {
+      font-size: 24px;
+      color: #2c2c2c;
+      filter: brightness(0.7) contrast(1.1) sepia(0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .service-cards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .service-card {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.5rem 1rem;
+      }
+      
+      .logo-image {
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .welcome-title {
+        font-size: 2.8rem;
+      }
+      
+      .service-card {
+        padding: 1.25rem;
+      }
+      
+      .contact-info {
+        flex-direction: column;
+        gap: 4px;
+      }
+      
+      .separator {
+        display: none;
+      }
+      
+      .social-icons {
+        gap: 1rem;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      .menu-button {
+        border: 2px solid #c4412f;
+        background: #fff;
+        color: #c4412f;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo Image with Brush Strokes -->
+    <div class="logo-section">
+      <img src="header and logo.png" alt="Sherry's Eats Logo" class="logo-image">
+    </div>
+
+    <!-- Welcome Message -->
+    <div class="welcome-section">
+      <h1 class="welcome-title">Welcome to Sherry's Eats!</h1>
+      <p class="welcome-subtitle">Fresh, homemade food delivered to your door. Made with love in our Michigan kitchen since 2001.</p>
+    </div>
+
+    <!-- Menu Buttons -->
+    <div class="buttons-section">
+      <div class="service-cards">
+        <div class="service-card" onclick="window.location.href='order-form.html'">
+          <div class="service-icon">🌶️</div>
+          <h3>Chips & Salsa</h3>
+          <p>Fresh, homemade chips and salsa in multiple heat levels. Made daily in our Michigan kitchen.</p>
+          <div class="card-cta">Order Now →</div>
+        </div>
+        
+        <div class="service-card" onclick="window.location.href='tel:8106278204'">
+          <div class="service-icon">🌯</div>
+          <h3>Breakfast Burritos</h3>
+          <p>Fresh breakfast burritos made to order. Perfect for starting your day right.</p>
+          <div class="card-cta">Call to Order →</div>
+        </div>
+        
+        <div class="service-card" onclick="window.location.href='tel:8106278204'">
+          <div class="service-icon">🎉</div>
+          <h3>Catering</h3>
+          <p>Perfect for events, parties, and gatherings. We'll customize the menu for your special occasion.</p>
+          <div class="card-cta">Get Quote →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-section">
+      <div class="michigan-info">
+        <span class="chili-icon">🌶️</span>
+        <span class="michigan-text">Made in Michigan</span>
+      </div>
+      
+      <div class="contact-info">
+        <a href="tel:8106278204" class="contact-link">(810) 627-8204</a>
+        <span class="separator">|</span>
+        <a href="mailto:sherryschipsandsalsa@gmail.com" class="contact-link">sherryschipsandsalsa@gmail.com</a>
+      </div>
+      
+      <div class="social-icons">
+        <a href="https://venmo.com/sherrys-eats" target="_blank" class="social-link">
+          <i class="fab fa-venmo social-icon"></i>
+        </a>
+        <a href="https://www.instagram.com/sherryseatsmi/" target="_blank" class="social-link">
+          <i class="fab fa-instagram social-icon"></i>
+        </a>
+        <a href="https://www.youtube.com/@sherryseats" target="_blank" class="social-link">
+          <i class="fab fa-youtube social-icon"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
